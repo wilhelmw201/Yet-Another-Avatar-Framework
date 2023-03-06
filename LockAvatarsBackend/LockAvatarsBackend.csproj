@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Platforms>AnyCPU;x64</Platforms>
+    <BaseOutputPath>D:\SteamLibrary\steamapps\common\The Scroll Of Taiwu\Mod\LockAvatarsFramework\Plugins</BaseOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\SteamLibrary\steamapps\common\The Scroll Of Taiwu\The Scroll of Taiwu_Data\Managed\0Harmony.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="GameData">
+      <HintPath>..\..\..\SteamLibrary\steamapps\common\The Scroll Of Taiwu\Backend\GameData.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="TaiwuModdingLib">
+      <HintPath>..\..\..\SteamLibrary\steamapps\common\The Scroll Of Taiwu\The Scroll of Taiwu_Data\Managed\TaiwuModdingLib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="TWRPC">
+      <HintPath>..\..\..\SteamLibrary\steamapps\workshop\content\838350\2879349207\Plugins\TWRPC.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\SteamLibrary\steamapps\common\The Scroll Of Taiwu\The Scroll of Taiwu_Data\Managed\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\SteamLibrary\steamapps\common\The Scroll Of Taiwu\The Scroll of Taiwu_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>
