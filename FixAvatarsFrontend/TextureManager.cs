@@ -26,38 +26,35 @@ namespace LockAvatarsFrontend
             else return 2;
         }
 
+
         public static void AddTexture(string name, string storagePath, 
-            List<String> allowedToons, bool isMale, int offsetX, int offsetY)
+            string[] allowedToons, int offsetX, int offsetY)
         {
             TextureEntry en = new TextureEntry(name, storagePath);
             en.offsetX = offsetX;
             en.offsetY = offsetY;
-            if (isMale)
+
+            if (allowedToons != null && allowedToons.Length > 0)
             {
-                freeAvatarsMale.Add(en);
+
+                foreach (string s in allowedToons)
+                {
+                    List<TextureEntry> entries = DefaultDictGet(textureStorage, s);
+                    entries.Add(en);
+
+                }
+
             }
             else
             {
-                freeAvatarsFemale.Add(en);
+                throw new ArgumentException("cannot have null allowedToons");
             }
+
+
         }
-
-        public static Texture2D RetrieveFreeTexture(int seed, bool isMale, UICommon.Character.Avatar.AvatarSize size)
+        public static Texture2D _RetrieveTexture(int seed, string replaceType, UICommon.Character.Avatar.AvatarSize size, List<TextureEntry> source)
         {
-            List<TextureEntry> source;
-            if (isMale)
-            {
-                source = freeAvatarsMale;
-            }
-            else
-            {
-                source = freeAvatarsFemale;
-            }
-            if (source.Count == 0)
-            {
-                return null;
-            }
-
+            if (source.Count == 0 || source == null) return null;
             Random random = new Random(seed);
             int idx = random.Next() % source.Count;
             TextureEntry entry = source[idx];
@@ -66,13 +63,34 @@ namespace LockAvatarsFrontend
                 throw new InvalidOperationException(String.Format("加载失败:{0}@{1}.", entry.name, entry.storagePath));
             }
             return entry.texture[CvtAvatarSizeToIdx(size)];
+        }
+
+        public static Texture2D RetrieveTexture(int seed, string replaceType, UICommon.Character.Avatar.AvatarSize size)
+        {
+            List<TextureEntry> source = DefaultDictGet(textureStorage, replaceType);
+            if (String.IsNullOrEmpty(replaceType)) return null;
+            if (source.Count == 0 || source == null)
+            {
+                if (replaceType[0] == 'M')
+                {
+                    source = DefaultDictGet(textureStorage, "M");
+                }
+                else if (replaceType[0] == 'F')
+                {
+                    source = DefaultDictGet(textureStorage, "F");
+                }
+                else
+                {
+                    return null;
+                }
+            };
+
+            return _RetrieveTexture(seed, replaceType, size, source);
             
 
-        }
-        public static Texture2D RetrieveCharSpecificTexture(int seed, bool isMale, UICommon.Character.Avatar.AvatarSize size, string spec)
-        {
-            // not implemented 
-            return RetrieveFreeTexture(seed, isMale, size);
+
+            
+
         }
 
         public static int GetUniqueId()
@@ -80,21 +98,33 @@ namespace LockAvatarsFrontend
             return curr_id++;
         }
 
-        public static int GetAvatarDictSize(string specifier, bool isMale)
+        public static int GetAvatarDictSize()
         {
-            if (isMale)
-            {
-                return freeAvatarsMale.Count;
-            }
-            return freeAvatarsFemale.Count;
+
+            return textureStorage.Count;
         }
 
-        static List<TextureEntry> freeAvatarsMale = new List<TextureEntry> { };
+        static Dictionary<string, List<TextureEntry>> textureStorage = new Dictionary<string, List<TextureEntry>> { };
+
+        /*static List<TextureEntry> freeAvatarsMale = new List<TextureEntry> { };
         static List<TextureEntry> freeAvatarsFemale = new List<TextureEntry> { };
         static Dictionary<string, List<TextureEntry>> specificAvatarsMale;
-        static Dictionary<string, List<TextureEntry>> specificAvatarsFemale;
+        static Dictionary<string, List<TextureEntry>> specificAvatarsFemale;*/
         static int curr_id = 0;
-
+        private static T2 DefaultDictGet<T1, T2>(Dictionary<T1, T2> dict, T1 key)
+             where T2 : new()
+        {
+            if (dict.ContainsKey(key))
+            {
+                return dict[key];
+            }
+            else
+            {
+                T2 val = new T2();
+                dict[key] = val;
+                return val;
+            }
+        }
     }
 
     class TextureEntry
@@ -148,13 +178,7 @@ namespace LockAvatarsFrontend
 
     }
 
-    class TypeEntry
-    {
-        public int id { get; set; }
-        public string name { get; set; }
 
-        public List<int> allowedTextures; 
-    }
 
 
 

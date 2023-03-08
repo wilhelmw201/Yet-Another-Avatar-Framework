@@ -27,15 +27,17 @@ namespace LockAvatarsFrontend
                 DirectoryInfo directoryInfo = new DirectoryInfo(directoryName);
                 foreach (DirectoryInfo subdirectory in directoryInfo.GetDirectories())
                 {
-                    if (subdirectory.Name == "LockAvatarModAsset")
+                    if (subdirectory.Name == "YAAFAsset")
                     {
-                        AdaptableLog.Info("发现LockAvatarModAsset文件夹：" + directoryInfo.FullName);
+                        AdaptableLog.Info("发现YAAFAsset文件夹：" + directoryInfo.FullName);
 
                         foreach (DirectoryInfo subsubdirectory in subdirectory.GetDirectories())
                         {
                             try
                             {
                                 TryLoadFolderInfo(subsubdirectory);
+                                AdaptableLog.Info(String.Format("完成读取图片文件夹，目前有图片：{0}张",
+ TextureManager.GetAvatarDictSize()));
                             }
                             catch (Exception e)
                             {
@@ -45,8 +47,6 @@ namespace LockAvatarsFrontend
                     }
                 }
             }
-            AdaptableLog.Info(String.Format("完成读取图片文件夹，总共读取了{0}张男性，{1}张女性图片",
-                TextureManager.GetAvatarDictSize("", true), TextureManager.GetAvatarDictSize("", false)));
         }
 
         public static List<Texture2D> ReallyLoadTexture(TextureEntry entry)
@@ -75,7 +75,7 @@ namespace LockAvatarsFrontend
         }
         private static void TryLoadFolderInfo(DirectoryInfo directory)
         {
-            // read the LockAvatarModAsset folder
+            // read the YAALAsset folder
             // first determine metadata (male? female?)
             string metaFile = Path.Combine(directory.FullName, "asset.json");
             if (!File.Exists(metaFile))
@@ -98,6 +98,7 @@ namespace LockAvatarsFrontend
 
             int offsetX = 0;
             int offsetY = 0;
+            string[] allowedFor = null;
             if (configDict.TryGetValue("offsetx", out var _offsetX))
             {
                 offsetX = int.Parse(_offsetX);
@@ -106,14 +107,33 @@ namespace LockAvatarsFrontend
             {
                 offsetX = int.Parse(_offsetY);
             }
+            if (configDict.TryGetValue("allowed", out var allowed))
+            {
+                
+                allowedFor = allowed.Trim(new char[] { ' ', ','}).Split(',');
+                
+            }
+
 
             string FBig = Path.Combine(directory.FullName, "big.png");
             string FMid = Path.Combine(directory.FullName, "mid.png");
             string FSmall = Path.Combine(directory.FullName, "small.png");
             if (File.Exists(FBig) && File.Exists(FMid) && File.Exists(FSmall))
             {
-                TextureManager.AddTexture(name, directory.FullName, null, isMale,
-                    offsetX, offsetY);
+
+                if (allowedFor == null)
+                {
+                    TextureManager.AddTexture(name, directory.FullName, 
+                        new string[] { isMale? "M":"F" }, 
+                        offsetX, offsetY);
+                }
+                else
+                {
+                    TextureManager.AddTexture(name, directory.FullName,
+                        allowedFor, offsetX, offsetY);
+                }
+
+
 
             }
             else

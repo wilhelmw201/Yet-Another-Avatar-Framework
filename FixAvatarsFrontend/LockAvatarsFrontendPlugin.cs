@@ -15,6 +15,7 @@ using UICommon.Character;
 using CharacterDataMonitor;
 using TaiWuRPC;
 using XLua.Cast;
+using System.Diagnostics;
 
 namespace LockAvatarsFrontend
 {
@@ -33,12 +34,12 @@ namespace LockAvatarsFrontend
         public override void Initialize()
         {
             AdaptableLog.Info("load LockAvatarsFrontendPlugin");
-
+            var sw = Stopwatch.StartNew();
             this.harmony = Harmony.CreateAndPatchAll(typeof(LockAvatarsFrontendPlugin), null);
 
             AssetLoader.LoadImageInfo();
-
-            AdaptableLog.Info("Done.");
+            AdaptableLog.Info(String.Format("Done, time elapsed: {0}ms", sw.ElapsedMilliseconds));
+            sw.Stop();
 
         }
 
@@ -95,6 +96,8 @@ namespace LockAvatarsFrontend
             {
                 string[] subs = npcAvatarTextureName.Split('_');
                 __result = new Vector2(int.Parse(subs[1]), int.Parse(subs[2]));
+                AdaptableLog.Info(String.Format("Offset:{0},{1}", __result[0], __result[1]));
+
                 return false;
             }
             return true;
@@ -106,21 +109,8 @@ namespace LockAvatarsFrontend
         {
             string replaceType = BackendCommunication.checkReplaceType(charId);
             if (replaceType == String.Empty) return null;
-            bool isMale;
-            if (replaceType[0] == 'M')
-            {
-                isMale = true;
-            }
-            else if (replaceType[0] == 'F')
-            {
-                isMale = false;
-            }
-            else
-            {
-                // probably something unimplemented
-                return null;
-            }
-            return TextureManager.RetrieveFreeTexture(charId, isMale, size);
+            return TextureManager.RetrieveTexture(charId, replaceType, size);
+           
 
         }
 

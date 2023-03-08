@@ -33,9 +33,9 @@ namespace LockAvatarsBackend
         [HarmonyPatch(typeof(EventHelper), "CreateNonIntelligentCharacter")]
         public static void CreateNonIntelligentCharacter_Post(ref int __result)
         {
-            AdaptableLog.Info("In Post CNIC");
             // object[] __args seems to not work and breaks game.
-            short templateId = EventHelper.GetCharacterById(__result).GetTemplateId();
+            var chara = EventHelper.GetCharacterById(__result);
+            short templateId = chara.GetTemplateId();
             CharacterItem characterCfg = Config.Character.Instance[templateId];
             byte creatingType = characterCfg.CreatingType;
             if (creatingType != 2 || templateId == 477)
@@ -48,11 +48,11 @@ namespace LockAvatarsBackend
             string name;
             if (gender == 0)
             {
-                name = "F";
+                name = "F" + chara.GetFixedAvatarName();
             }
             else
             {
-                name = "M";
+                name = "M" + chara.GetFixedAvatarName();
             }
 
             SetLockedAvatar(__result, name, false);
